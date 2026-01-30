@@ -1,4 +1,4 @@
-# Anki Card Generator
+# Anki Card Generator (Italian/Persian)
 
 This project is a Python-based automation tool to create Anki flashcards. 
 I am **Persian**, which is why the phonetic pronunciations and translations in the `words.csv` file are written in **Farsi**. 
