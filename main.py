@@ -1,5 +1,6 @@
 import csv
 import os
+
 import genanki
 from gtts import gTTS
 
@@ -32,8 +33,8 @@ my_model = genanki.Model(
     templates=[
         {
             "name": "Card 1",
-            'qfmt': '<div class="word">{{Word}}</div><div class="pron">[{{Pronunciation}}]</div>',
-            'afmt': '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}',
+            "qfmt": '<div class="word">{{Word}}</div><div class="pron">[{{Pronunciation}}]</div>',
+            "afmt": '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}',
         },
     ],
     css=style,
@@ -69,8 +70,10 @@ try:
 
     # 5. Dynamic Packaging
     print("-" * 30)
-    output_filename = input("Enter the desired name for your Anki package (e.g., Lesson1): ").strip()
-    
+    output_filename = input(
+        "Enter the desired name for your Anki package (e.g., Lesson1): "
+    ).strip()
+
     # Ensure the filename ends with .apkg
     if not output_filename.lower().endswith(".apkg"):
         output_filename += ".apkg"
