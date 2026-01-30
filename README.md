@@ -1,10 +1,10 @@
-# 🇮🇹 Italian Anki Card Generator (Customized for Persian Learners)
+# Anki Card Generator
 
-This project is a Python-based automation tool to create high-quality Anki flashcards. It is specifically designed to help Persian speakers learn Italian, but it can be easily adapted for any other language.
-
-## 🌍 Language Note (Persian/Farsi)
+This project is a Python-based automation tool to create Anki flashcards. 
 I am **Persian**, which is why the phonetic pronunciations and translations in the `words.csv` file are written in **Farsi**. 
-> **Note to international users:** You can easily adapt this project to your own native language by simply updating the translations and phonetic columns in the `words.csv` file. The core logic remains the same!
+
+## 🌍 Note to international users
+> You can easily adapt this project to your own native language by simply updating the translations and phonetic columns in the `words.csv` file. The core logic remains the same!
 
 ## ✨ Features
 * **Native Audio:** Automatically generates Italian audio for each word using `gTTS` (Google Text-to-Speech).
@@ -24,8 +24,8 @@ pip install genanki gtts
 ## 🚀 How to Use
 
 1. **Prepare the CSV:** Ensure your `words.csv` file follows this structure (4 columns):
-* `Word (Italian)`
-* `Phonetic (In my case, Farsi)`
+* `Word`
+* `Phonetic`
 * `Translation`
 * `Example Sentence`
 
