@@ -1,6 +1,5 @@
 import csv
 import os
-
 import genanki
 from gtts import gTTS
 
@@ -19,8 +18,7 @@ style = """
 audio { margin-top: 10px; }
 """
 
-# 3. Define the Model with Audio field
-# We added {{Audio}} to the back template (afmt)
+# 3. Define the Model
 my_model = genanki.Model(
     MODEL_ID,
     "Italian Audio Model",
@@ -34,8 +32,8 @@ my_model = genanki.Model(
     templates=[
         {
             "name": "Card 1",
-            "qfmt": '<div class="word">{{Word}}</div><div class="pron">[{{Pronunciation}}]</div>',
-            "afmt": '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}',
+            'qfmt': '<div class="word">{{Word}}</div><div class="pron">[{{Pronunciation}}]</div>',
+            'afmt': '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}',
         },
     ],
     css=style,
@@ -56,7 +54,6 @@ try:
 
             word, pron, trans, example = row
 
-            # Generate Text-to-Speech file
             audio_filename = f"audio_files/{word}.mp3"
             if not os.path.exists(audio_filename):
                 tts = gTTS(text=word, lang="it")
@@ -64,20 +61,26 @@ try:
 
             media_files.append(audio_filename)
 
-            # Create Anki Note
-            # Note: Audio field uses [sound:filename.mp3] format
             note = genanki.Note(
                 model=my_model,
                 fields=[word, pron, trans, example, f"[sound:{word}.mp3]"],
             )
             my_deck.add_note(note)
 
-    # 5. Package the Deck and Media files
+    # 5. Dynamic Packaging
+    print("-" * 30)
+    output_filename = input("Enter the desired name for your Anki package (e.g., Lesson1): ").strip()
+    
+    # Ensure the filename ends with .apkg
+    if not output_filename.lower().endswith(".apkg"):
+        output_filename += ".apkg"
+
     package = genanki.Package(my_deck)
     package.media_files = media_files
-    package.write_to_file("Italian_With_Audio.apkg")
+    package.write_to_file(output_filename)
 
-    print("Success! 'Italian_With_Audio.apkg' has been created with voice files.")
+    print(f"\n🚀 Success! '{output_filename}' has been created with voice files.")
+    print("-" * 30)
 
 except Exception as e:
     print(f"An error occurred: {e}")
