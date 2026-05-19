@@ -1,0 +1,14 @@
+# Generated Anki output
+output/
+*.apkg
+
+# Legacy generated audio location
+audio_files/
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.venv/
+
+# macOS metadata
+.DS_Store
