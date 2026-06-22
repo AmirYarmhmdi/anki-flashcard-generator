@@ -64,10 +64,10 @@ Run the generator:
 python main.py
 ```
 
-The script asks for an output name:
+The script asks for a deck/package name:
 
 ```text
-Enter the desired name for your Anki package (e.g., Lesson1):
+Enter the desired name for your Anki deck/package (e.g., Lesson1):
 ```
 
 Examples:
@@ -81,6 +81,9 @@ creates:
 ```text
 output/Lesson1.apkg
 ```
+
+The same name is also used as the deck name inside Anki.
+Ankiflash also derives stable deck, model, and note IDs from that name, so a new deck name imports as a separate Anki deck instead of merging into an older deck such as `Italian::Polito`.
 
 If you press Enter without typing a name, the default file is:
 
@@ -115,6 +118,8 @@ Cards without audio: ...
 Existing audio files reused: ...
 New audio files generated: ...
 Audio generation failures: ...
+Deck name: ...
+Deck ID: ...
 ```
 
 ## Input Cleanup
@@ -163,7 +168,8 @@ Only the first row is kept. Later duplicate rows are removed from `input/words.c
 * `gTTS` needs internet access when creating new audio files.
 * Existing MP3 files are reused, so rerunning the script is faster after the first generation.
 * If audio generation fails for some rows, the `.apkg` file is still created. Those cards are included without audio, and the failed words are printed in the terminal.
-* The generated Anki deck name is currently `Italian::Polito`.
+* The generated Anki deck name is the same name you enter when running the script.
+* Each card includes a small GitHub credit link on the back: `https://github.com/AmirYarmhmdi/anki-flashcard-generator/`.
 * The script writes cleaned CSV data back to `input/words.csv` when duplicate or numeric-only word rows are found.
 
 Buon apprendimento! یادگیری خوبی داشته باشید.

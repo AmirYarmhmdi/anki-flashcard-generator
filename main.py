@@ -1,4 +1,5 @@
 import csv
+import hashlib
 from pathlib import Path
 
 import genanki
@@ -10,9 +11,25 @@ INPUT_DIR = BASE_DIR / "input"
 OUTPUT_DIR = BASE_DIR / "output"
 WORDS_CSV = INPUT_DIR / "words.csv"
 AUDIO_DIR = OUTPUT_DIR / "audio_files"
+DEFAULT_DECK_NAME = "Italian_With_Audio"
+AUTHOR_CREDIT = (
+    'Created by AmirYarmhmdi - '
+    '<a href="https://github.com/AmirYarmhmdi/anki-flashcard-generator/">'
+    "GitHub repository</a>"
+)
 
-MODEL_ID = 1569382020
-DECK_ID = 2025101010
+def deck_id_from_name(deck_name):
+    return stable_id("deck", deck_name)
+
+
+def model_id_from_name(deck_name):
+    return stable_id("model", deck_name)
+
+
+def stable_id(*parts):
+    value = "::".join(parts)
+    digest = hashlib.sha1(value.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % 10_000_000_000
 
 
 def load_clean_rows(csv_path):
@@ -71,31 +88,47 @@ style = """
 .word { font-size: 32px; color: #2980b9; font-weight: bold; }
 .trans { font-size: 26px; color: #27ae60; margin: 15px 0; }
 .ex { font-size: 18px; color: #7f8c8d; font-style: italic; }
+.credit { font-size: 11px; color: #95a5a6; margin-top: 18px; }
+.credit a { color: #7f8c8d; text-decoration: none; }
 audio { margin-top: 10px; }
 """
 
-# 3. Define the Model
-my_model = genanki.Model(
-    MODEL_ID,
-    "Italian Audio Model",
-    fields=[
-        {"name": "Word"},
-        {"name": "Translation"},
-        {"name": "Example"},
-        {"name": "Audio"},
-    ],
-    templates=[
-        {
-            "name": "Card 1",
-            "qfmt": '<div class="word">{{Word}}</div>',
-            "afmt": '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}',
-        },
-    ],
-    css=style,
-)
+def build_model(deck_name):
+    return genanki.Model(
+        model_id_from_name(deck_name),
+        f"{deck_name} Card Model",
+        fields=[
+            {"name": "Word"},
+            {"name": "Translation"},
+            {"name": "Example"},
+            {"name": "Audio"},
+            {"name": "Credit"},
+        ],
+        templates=[
+            {
+                "name": "Card 1",
+                "qfmt": '<div class="word">{{Word}}</div>',
+                "afmt": '{{FrontSide}}<hr id="answer"><div class="trans">{{Translation}}</div><div class="ex">{{Example}}</div><br>{{Audio}}<div class="credit">{{Credit}}</div>',
+            },
+        ],
+        css=style,
+    )
 
 def main():
-    my_deck = genanki.Deck(DECK_ID, "Italian::Polito")
+    print("-" * 30)
+    deck_name = input(
+        "Enter the desired name for your Anki deck/package (e.g., Lesson1): "
+    ).strip()
+    if not deck_name:
+        deck_name = DEFAULT_DECK_NAME
+
+    output_path = OUTPUT_DIR / Path(deck_name).name
+    if output_path.suffix.lower() != ".apkg":
+        output_path = output_path.with_suffix(".apkg")
+
+    deck_id = deck_id_from_name(deck_name)
+    my_deck = genanki.Deck(deck_id, deck_name)
+    my_model = build_model(deck_name)
     media_files = []
     audio_errors = []
     generated_audio_count = 0
@@ -144,7 +177,8 @@ def main():
 
             note = genanki.Note(
                 model=my_model,
-                fields=[word, trans, example, audio_field],
+                fields=[word, trans, example, audio_field, AUTHOR_CREDIT],
+                guid=genanki.guid_for(deck_name, word, trans, example),
             )
             my_deck.add_note(note)
 
@@ -158,20 +192,7 @@ def main():
             if len(audio_errors) > 10:
                 print(f"... and {len(audio_errors) - 10} more.")
 
-        # 5. Dynamic Packaging
-        print("-" * 30)
-        output_filename = input(
-            "Enter the desired name for your Anki package (e.g., Lesson1): "
-        ).strip()
-        if not output_filename:
-            output_filename = "Italian_With_Audio"
-
-        output_path = OUTPUT_DIR / Path(output_filename).name
-
-        # Ensure the filename ends with .apkg
-        if output_path.suffix.lower() != ".apkg":
-            output_path = output_path.with_suffix(".apkg")
-
+        # 5. Packaging
         package = genanki.Package(my_deck)
         package.media_files = media_files
         package.write_to_file(str(output_path))
@@ -187,6 +208,8 @@ def main():
         print(f"Existing audio files reused: {existing_audio_count}")
         print(f"New audio files generated: {generated_audio_count}")
         print(f"Audio generation failures: {len(audio_errors)}")
+        print(f"Deck name: {deck_name}")
+        print(f"Deck ID: {deck_id}")
         print("-" * 30)
 
     except Exception as e:
